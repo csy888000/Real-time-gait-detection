@@ -1,1 +1,0 @@
-# using Vicon datastream sdk to stream vicon data live

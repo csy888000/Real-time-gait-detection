@@ -16,12 +16,11 @@ if __name__ == '__main__':
 
     # vicon_stream, subject_name, marker_count = vicon_init("192.168.10.203")
     IP_ADDRESS = "192.168.10.203"
-    # print("Vicon connection is", vicon_stream)
-    # print("Subject name is", subject_name)
-    # print("Marker counts is", marker_count)
-    (parent_conn_vicon, child_conn_vicon) = Pipe()
-    sender_vicon = Process(target = async_vicon, args = (parent_conn_vicon, IP_ADDRESS))
-    sender_vicon.start()
+    vicon_enable = False
+    if vicon_enable:
+        (parent_conn_vicon, child_conn_vicon) = Pipe()
+        sender_vicon = Process(target = async_vicon, args = (parent_conn_vicon, IP_ADDRESS))
+        sender_vicon.start()
 
 
     pretrained_model = load_model('TrainedModel/detectActivity.h5')
@@ -58,8 +57,9 @@ if __name__ == '__main__':
             if len(IMU_data_list) > 10:
                 IMU_data_list = IMU_data_list[1:]
 
-            vicon_data = child_conn_vicon.recv()
-            print("VICON data:", vicon_data[0])
+            if vicon_enable:
+                vicon_data = child_conn_vicon.recv()
+                print("VICON data:", vicon_data[0])
 
             if current_frame > 10:
                 inputstopoints_test = np.expand_dims(IMU_data_list, axis=0)

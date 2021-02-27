@@ -6,6 +6,9 @@ import numpy as np
 from vicon_initialization import *
 from vicon_receiver import *
 
+import tensorflow as tf
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 if __name__ == '__main__':
     serial_connection = IMU_init()

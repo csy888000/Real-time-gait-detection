@@ -26,7 +26,8 @@ if __name__ == '__main__':
         sender_vicon.start()
 
 
-    pretrained_model = load_model('TrainedModel/detectActivity.h5')
+    # pretrained_model = load_model('TrainedModel/detectActivity.h5')
+    pretrained_model = load_model("TrainedModel/Roofinglstm - Classification.hdf5")
     activity_model_list = load_pretrained_model()
     angle_ref_list = load_reference_angle()
     mean_list, std_list = load_mean_std()
@@ -46,34 +47,50 @@ if __name__ == '__main__':
     angle_error_sum = 0
     angle_pred_list = []
     outputAll = []
-    DATA_LEN = 10
+    DATA_LEN = 20
     propagation_list = []
     output_idx_list = []
-
+    data_record_list = []
 
     try:
 
         while True:
             time_start = time.time()
             IMU_data = child_conn_IMU.recv()
-            IMU_data_list.append(IMU_data)
-            if len(IMU_data_list) > 10:
-                IMU_data_list = IMU_data_list[1:]
+
+
+
+            # IMU_data_list.append(IMU_data)
+            IMU_data_list.insert(0,IMU_data)
+
+            IMU_data_diff = abs(np.diff(IMU_data_list[0],IMU_data_list[1]))
+            if IMU_data_diff[6:9] > 50:
+                IMU_data_list[0][6:9] = IMU_data_list[1][6:9]
+            if IMU_data_diff[3:6] > 500:
+                IMU_data_list[0][3:6] = IMU_data_list[1][3:6]
+
+
+
+            if len(IMU_data_list) > 100:
+                IMU_data_list = IMU_data_list[:-1]
+                # IMU_data_list = IMU_data_list[1:]
 
             if vicon_enable:
                 vicon_data = child_conn_vicon.recv()
                 print("VICON data:", vicon_data[0])
 
-            if current_frame > 10:
+            if current_frame > 100:
                 inputstopoints_test = np.expand_dims(IMU_data_list, axis=0)
-                output_test = test_model_activity(inputstopoints_test, pretrained_model)
-                output = np.amax(output_test)
-                output_idx = np.argmax(output_test) + 1
+                # output_test_activity = test_model_activity(inputstopoints_test, pretrained_model)
+                output_test_activity = pretrained_model.predict(inputstopoints_test)
+                # print(output_test_activity)
+                output = np.amax(output_test_activity)
+                output_idx = np.argmax(output_test_activity) + 1
 
 
                 type_walk = output_idx
                 xmean, xstd = get_mean_std(mean_list, std_list, type_walk)
-                x = inputstopoints_test - xmean
+                x = inputstopoints_test[:, 0:20, :] - xmean
                 x /= xstd
 
                 output_test = test_model(x, activity_model_list[type_walk-1])
@@ -94,8 +111,10 @@ if __name__ == '__main__':
                 print("        %6d,       %10.4f      %6d,       %10.4f" % (
                     current_frame, sum(period_list) / len(period_list), output_idx, current_propagation))
 
-                imu_reading = [current_frame, current_period, output_idx, current_propagation, IMU_data]
-                file1.writelines(','.join(str(j) for j in imu_reading) + '\n')
+                data_record = [current_frame, current_period, output_idx, current_propagation, IMU_data]
+                data_record_list.append(data_record)
+
+                file1.writelines(','.join(str(j) for j in data_record) + '\n')
 
             current_frame += 1
 
@@ -105,8 +124,23 @@ if __name__ == '__main__':
         file1.close()
         print('Program Interrupted! Closing...')
 
+    plt.plot(output_idx_list)
+    plt.title('Activity')
+    plt.ylabel('Activity')
+    plt.xlabel('Frame')
+    plt.legend(['activity'], loc='upper left')
+    plt.show()
 
 
-    # print(np.asarray(angle_pred_list))
-    # np.savetxt('TrainedModel/anglePred.txt', np.asarray(angle_pred_list), delimiter=',')
-    # np.savetxt('TrainedModel/outputAll.txt', np.asarray(outputAll), delimiter=',')
+    plt.plot(propagation_list)
+    plt.title('Propagation')
+    plt.ylabel('Propagation')
+    plt.xlabel('Frame')
+    plt.legend(['Propagation'], loc='upper left')
+    plt.show()
+
+
+
+
+
+

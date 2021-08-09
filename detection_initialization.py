@@ -27,10 +27,10 @@ from numpy import array
 
 
 def load_pretrained_model():
-    pretrained_model1 = load_model('TrainedModel/IMUtoLatentFlat.h5')
-    pretrained_model2 = load_model('TrainedModel/IMUtoLatentUp.h5')
-    pretrained_model3 = load_model('TrainedModel/IMUtoLatentAcross.h5')
-    pretrained_model4 = load_model('TrainedModel/IMUtoLatentDown.h5')
+    pretrained_model1 = load_model('Saved_H5_Model/IMUtoLatent_test7_Flat_20deg.h5')
+    pretrained_model2 = load_model('Saved_H5_Model/IMUtoLatent_test7_Up_20deg.h5')
+    pretrained_model3 = load_model('Saved_H5_Model/IMUtoLatent_test7_Across_20deg.h5')
+    pretrained_model4 = load_model('Saved_H5_Model/IMUtoLatent_test7_Down_20deg.h5')
     activity_model_list = [pretrained_model1, pretrained_model2, pretrained_model3, pretrained_model4]
     return activity_model_list
 
@@ -67,6 +67,14 @@ def load_mean_std():
         std_list.append(xstd)
     return mean_list, std_list
 
+
+def load_mean_std_activity():
+    mean_filename = 'TrainedModel/meanActivity.txt'
+    mean_and_std = pd.read_csv(mean_filename, sep=",", header=None)
+    mean_and_std = mean_and_std.to_numpy()
+    xmean = mean_and_std[0, :]
+    xstd = mean_and_std[1, :]
+    return xmean, xstd
 
 # def get_mean_std(mean_list, std_list, type_walk):
 #     xmean = mean_list[type_walk-1]

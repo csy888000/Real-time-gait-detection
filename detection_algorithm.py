@@ -89,10 +89,18 @@ def test_size_x(size, inputdata):
 
 
 def test_model_activity(inputstopoints, pretrained_model):
-    get_dense_output = backend.function([pretrained_model.layers[0].input], [pretrained_model.layers[3].output])
-    dense_17layer_output = get_dense_output(inputstopoints)
+    get_dense_output_activity = backend.function([pretrained_model.layers[0].input], [pretrained_model.layers[3].output])
+    dense_17layer_output = get_dense_output_activity(inputstopoints)
     dense_17layer_output = np.asarray(dense_17layer_output)
     return dense_17layer_output
+
+
+def test_model_regression(inputstopoints, pretrained_model):
+    get_dense_output_activity = backend.function([pretrained_model.layers[0].input], [pretrained_model.layers[4].output])
+    dense_17layer_output = get_dense_output_activity(inputstopoints)
+    dense_17layer_output = np.asarray(dense_17layer_output)
+    return dense_17layer_output
+
 
 
 if __name__ == '__main__':

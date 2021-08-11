@@ -68,16 +68,17 @@ def run_IMU_streaming():
             time_diff = time.time() - time_start
 
             time_list.append(time_diff)
-            print("%6d, %10.3f" % (num, (sum(time_list) / len(time_list)) * 1000))
+            # print("%6d, %10.3f" % (num, (sum(time_list) / len(time_list)) * 1000))
 
             imu_reading = [time_diff, Roll, Pitch, Yaw, Gx, Gy, Gz, Ax, Ay, Az, Mx, My, Mz]
             file1.writelines(
                 ','.join(str(j) for j in imu_reading) + '\n')
 
-            print(Roll, Pitch, Yaw, Gx, Gy, Gz, Ax, Ay, Az, Mx, My, Mz)
+            print("%9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f" %
+                  (time_diff, Roll, Pitch, Yaw, Gx, Gy, Gz, Ax, Ay, Az, Mx, My, Mz))
             num += 1
 
-            return imu_reading
+            # return imu_reading
 
     except KeyboardInterrupt:
 
@@ -88,10 +89,11 @@ def run_IMU_streaming():
 
 if __name__ == '__main__':
     print('Parent process %s.' % os.getpid())
-    p = Process(target=run_IMU_streaming, args=())
-    print('Child process will start.')
-    p.start()
-    p.join()
+    run_IMU_streaming()
+    # p = Process(target=run_IMU_streaming, args=())
+    # print('Child process will start.')
+    # p.start()
+    # p.join()
     print('Child process end.')
 
 

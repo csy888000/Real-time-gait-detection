@@ -86,12 +86,14 @@ def run_IMU_streaming():
             #     print("%6d, %10.3f" % (num, (sum(time_list) / len(time_list)) * 1000))
 
             # imu_reading = [time_diff, Roll, Pitch, Yaw, Gx, Gy, Gz, Ax, Ay, Az, Mx, My, Mz]
-            imu_reading = [time_diff, ang_x, ang_y, ang_z, ang_vel_x, ang_vel_y, ang_vel_z, acc_x, acc_y, acc_z, mag_x, mag_y, mag_z]
+            imu_reading = [time_diff, ang_x, ang_y, ang_z, ang_vel_x, ang_vel_y,
+                           ang_vel_z, acc_x, acc_y, acc_z, mag_x, mag_y, mag_z]
             file1.writelines(','.join(str(j) for j in imu_reading) + '\n')
 
             # print(num, Roll, Pitch, Yaw, Gx, Gy, Gz, Ax, Ay, Az, Mx, My, Mz)
             print("%9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f" %
-                  (time_imu, mag_x, mag_y, mag_z, ang_vel_x, ang_vel_y, ang_vel_z, ang_x, ang_y, ang_z, acc_x, acc_y, acc_z))
+                  (time_imu, ang_x, ang_y, ang_z, ang_vel_x, ang_vel_y, ang_vel_z, acc_x, acc_y, acc_z,
+                   mag_x, mag_y, mag_z))
             num += 1
 
             # return imu_reading

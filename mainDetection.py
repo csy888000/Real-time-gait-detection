@@ -63,11 +63,11 @@ if __name__ == '__main__':
             # IMU_data_list.append(IMU_data)
             IMU_data_list.insert(0,IMU_data)
 
-            IMU_data_diff = abs(np.diff(IMU_data_list[0],IMU_data_list[1]))
-            if IMU_data_diff[6:9] > 50:
-                IMU_data_list[0][6:9] = IMU_data_list[1][6:9]
-            if IMU_data_diff[3:6] > 500:
-                IMU_data_list[0][3:6] = IMU_data_list[1][3:6]
+            # IMU_data_diff = abs(np.diff(IMU_data_list[0],IMU_data_list[1]))
+            # if IMU_data_diff[6:9] > 50:
+            #     IMU_data_list[0][6:9] = IMU_data_list[1][6:9]
+            # if IMU_data_diff[3:6] > 500:
+            #     IMU_data_list[0][3:6] = IMU_data_list[1][3:6]
 
 
 

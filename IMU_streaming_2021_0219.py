@@ -1,3 +1,7 @@
+'''
+This file is for WitMotion IMU Hc-06
+'''
+
 import serial
 import time
 import struct
@@ -70,7 +74,7 @@ def run_IMU_streaming():
             file1.writelines(
                 ','.join(str(j) for j in imu_reading) + '\n')
 
-            # print(Roll, Pitch, Yaw, Gx, Gy, Gz, Ax, Ay, Az, Mx, My, Mz)
+            print(Roll, Pitch, Yaw, Gx, Gy, Gz, Ax, Ay, Az, Mx, My, Mz)
             num += 1
 
             return imu_reading

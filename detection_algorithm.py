@@ -7,14 +7,14 @@ from numpy import std
 from numpy import dstack
 from pandas import read_csv
 from tensorflow import keras
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import Flatten
-from keras.layers import Dropout
-from keras.layers import LSTM
-from keras.utils import to_categorical
-from keras.models import load_model
-from keras import backend
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import LSTM
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import load_model
+from tensorflow.keras import backend
 from matplotlib import pyplot
 import pandas as pd
 from sklearn import datasets, linear_model

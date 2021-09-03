@@ -9,8 +9,9 @@ def IMU_init():
     convA = 180.0 / 32768  # deg
     convM = 1.0  #
 
-    serialPort = '/dev/rfcomm0'  # /dev/ttyUSB0 # change this line if bluetooth or other port
+    # serialPort = '/dev/rfcomm0'  # /dev/ttyUSB0 # change this line if bluetooth or other port
     # serialPort = '/dev/ttyUSB0'
+    serialPort = '/dev/ttyACM0'
     serialBaud = 115200
 
     # start = time.time()

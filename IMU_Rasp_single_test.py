@@ -53,23 +53,27 @@ def run_IMU_streaming():
         while True:
             time_start = time.time()
 
-            # Select 16-bit integer, Raw mag/ Angular velocity/ Euler angle/ Lin acc
-            bytes = s_conn.read(39)  # Each package has 39 bytes
+            # Each package has 41 bytes
+            # Header 7, time 4, angle_vel 6, quaternion 8, angel 6, lin acc 6, end 2
+            bytes = s_conn.read(41)
+
+            # print(bytes)
 
             start_index = bytes.find(b'\x3A\x01\x00')
             end_index = bytes.find(b'\x0D\x0A', start_index + 1)
+            # print(start_index, end_index)
 
             time_index = start_index + 7
-            mag_index = start_index + 11
-            ang_vel_index = start_index + 17
-            angle_index = start_index + 23
-            acc_index = start_index + 29
+            ang_vel_index = start_index + 11
+            quaternion_index = start_index + 17
+            angle_index = start_index + 25
+            acc_index = start_index + 31
 
             time_bytes = bytes[time_index:time_index + 4]
             time_imu = struct.unpack("<I", time_bytes)[0]/400
 
-            mag = struct.unpack("<hhh", bytes[mag_index:mag_index + 6])
-            mag_x, mag_y, mag_z = [a / 100 for a in mag]
+            quaternion = struct.unpack("<hhhh", bytes[quaternion_index:quaternion_index + 8])
+            # quat_x, quat_y, quat_z = [a / 100 for a in quaternion]
 
             ang_vel = struct.unpack("<hhh", bytes[ang_vel_index:ang_vel_index + 6])
             ang_vel_x, ang_vel_y, ang_vel_z = [a / 1000 * rad2deg for a in ang_vel]
@@ -88,13 +92,12 @@ def run_IMU_streaming():
 
             # imu_reading = [time_diff, Roll, Pitch, Yaw, Gx, Gy, Gz, Ax, Ay, Az, Mx, My, Mz]
             imu_reading = [time_diff, ang_x, ang_y, ang_z, ang_vel_x, ang_vel_y,
-                           ang_vel_z, acc_x, acc_y, acc_z, mag_x, mag_y, mag_z]
+                           ang_vel_z, acc_x, acc_y, acc_z]
             file1.writelines(','.join(str(j) for j in imu_reading) + '\n')
 
             # print(num, Roll, Pitch, Yaw, Gx, Gy, Gz, Ax, Ay, Az, Mx, My, Mz)
-            print("%9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f" %
-                  (time_imu, ang_x, ang_y, ang_z, ang_vel_x, ang_vel_y, ang_vel_z, acc_x, acc_y, acc_z,
-                   mag_x, mag_y, mag_z))
+            print("%9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f, %9.4f" %
+                  (time_imu, ang_x, ang_y, ang_z, ang_vel_x, ang_vel_y, ang_vel_z, acc_x, acc_y, acc_z))
             num += 1
 
             # return imu_reading

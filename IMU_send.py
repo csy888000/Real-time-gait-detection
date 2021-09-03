@@ -15,6 +15,7 @@ time_list = []
 def receive_from_IMU(serial_conn):
     try:
         BlueIMU = True
+        RaspIMU = True
 
         if not BlueIMU:
             time_start = time.time()
@@ -45,7 +46,7 @@ def receive_from_IMU(serial_conn):
             #     ','.join(str(j) for j in imu_reading) + '\n')
 
             # print(Roll, Pitch, Yaw, Gx, Gy, Gz, Ax, Ay, Az, Mx, My, Mz)
-        else:
+        elif not RaspIMU:
             time_start = time.time()
 
             bytes = serial_conn.read(39)  # Each package has 39 bytes
@@ -83,7 +84,53 @@ def receive_from_IMU(serial_conn):
             # imu_reading = [time_diff, Roll, Pitch, Yaw, Gx, Gy, Gz, Ax, Ay, Az, Mx, My, Mz]
             imu_reading = [ang_x, ang_y, ang_z, ang_vel_x, ang_vel_y, ang_vel_z, acc_x, acc_y, acc_z, mag_x,
                            mag_y, mag_z]
+        else:
+            time_start = time.time()
+            # Header: 3 bytes; Each IMU has 56 bytes; Up to seven IMUs
+            # Each IMU: time * 1, angle_vel * 3, angle * 3, lin acc * 3, quaternion * 4
+            # All data in float
+            bytes = serial_conn.read(399)
+            # if time.time() - time_start > 0.0:
+                # print(bytes)
 
+            start_index = bytes.find(b'\x3A\x88')
+            imu_reading = []
+            if start_index != 0:
+                bytes_ignore = serial_conn.read(start_index)
+                # print(bytes_ignore)
+            else:
+                end_index = bytes.find(b'\x0D\x0A', start_index + 1)
+                # print(start_index, end_index)
+
+                # Up to seven IMUs
+                for num_imu in range(5):
+                    time_index = start_index + 3 + num_imu * 56
+                    ang_vel_index = start_index + 7 + num_imu * 56
+                    angle_index = start_index + 19 + num_imu * 56
+                    acc_index = start_index + 31 + num_imu * 56
+                    quaternion_index = start_index + 43 + num_imu * 56
+                    # print(time_index)
+
+                    time_bytes = bytes[time_index:time_index + 4]
+                    time_imu = struct.unpack("<f", time_bytes)[0]
+
+                    quaternion = struct.unpack("<ffff", bytes[quaternion_index:quaternion_index + 16])
+                    quat_1, quat_2, quat_3, quat_4 = [a for a in quaternion]
+
+                    ang_vel = struct.unpack("<fff", bytes[ang_vel_index:ang_vel_index + 12])
+                    ang_vel_x, ang_vel_y, ang_vel_z = [a for a in ang_vel]
+
+                    angle = struct.unpack("<fff", bytes[angle_index:angle_index + 12])
+                    ang_x, ang_y, ang_z = [a for a in angle]
+
+                    acc = struct.unpack("<fff", bytes[acc_index:acc_index + 12])
+                    acc_x, acc_y, acc_z = [a for a in acc]
+
+                    time_diff = time.time() - time_start
+
+                    one_imu_reading = [time_diff, ang_x, ang_y, ang_z, ang_vel_x, ang_vel_y, ang_vel_z,
+                                       acc_x, acc_y, acc_z, quat_1, quat_2, quat_3, quat_4]
+                    imu_reading.extend(one_imu_reading)
 
 
 

@@ -10,7 +10,7 @@ import time
 if __name__ == '__main__':
     test = PyVicon()
     print("SDK version : {}".format(test.__version__))
-    test.connect("192.168.10.203")
+    test.connect("192.168.1.10")
     print("Connection status : {}".format(test.is_connected()))
 
     test.set_stream_mode(StreamMode.ClientPull)

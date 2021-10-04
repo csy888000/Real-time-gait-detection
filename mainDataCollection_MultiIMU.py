@@ -18,7 +18,7 @@ if __name__ == '__main__':
     sender_IMU.start()
 
     # vicon_stream, subject_name, marker_count = vicon_init("192.168.10.203")
-    IP_ADDRESS = "192.168.10.203"
+    IP_ADDRESS = "192.168.1.10"
     vicon_enable = False
     if vicon_enable:
         (parent_conn_vicon, child_conn_vicon) = Pipe()
@@ -56,6 +56,10 @@ if __name__ == '__main__':
 
         while True:
             time_start = time.time()
+            # IMUs: Trunk, left thigh, left shank, right thigh, right shank
+            # Data: Periods, angles, angle velocities, quaternion
+            # Range of measurement: x, y, z as follows; x+ facing left, y+ facing up, z+ facing forward
+            # https://lp-research.atlassian.net/wiki/spaces/LKB/pages/1100611599/LPMS+User+Manual
             IMU_data = child_conn_IMU.recv()
 
             if vicon_enable:
@@ -67,6 +71,8 @@ if __name__ == '__main__':
                 data_record = [current_frame, current_period, vicon_data, IMU_data]
             else:
                 data_record = [current_frame, current_period, IMU_data]
+                if IMU_data:
+                    print("%10.4f,      %10.4f,      %10.4f" % (IMU_data[43], IMU_data[44], IMU_data[45]))
             data_record_list.append(data_record)
 
             file1.writelines(','.join(str(j) for j in data_record) + '\n')

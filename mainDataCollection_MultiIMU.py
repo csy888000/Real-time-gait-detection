@@ -17,9 +17,13 @@ if __name__ == '__main__':
     sender_IMU = Process(target = async_IMU, args = (parent_conn_IMU, serial_connection))
     sender_IMU.start()
 
+    #########################################################################################
     # vicon_stream, subject_name, marker_count = vicon_init("192.168.10.203")
     IP_ADDRESS = "192.168.1.10"
     vicon_enable = False
+    #########################################################################################
+
+
     if vicon_enable:
         (parent_conn_vicon, child_conn_vicon) = Pipe()
         sender_vicon = Process(target = async_vicon, args = (parent_conn_vicon, IP_ADDRESS))
@@ -67,10 +71,14 @@ if __name__ == '__main__':
                 print("VICON data:", vicon_data[0])
 
             current_period = (time.time() - time_start) * 1000
+
+            # Data format of output is plain txt
+            data_record = [current_frame, current_period]
             if vicon_enable:
-                data_record = [current_frame, current_period, vicon_data, IMU_data]
+                data_record.extend(vicon_data)
+                data_record.extend(IMU_data)
             else:
-                data_record = [current_frame, current_period, IMU_data]
+                data_record.extend(IMU_data)
                 if IMU_data:
                     print("%10.4f,      %10.4f,      %10.4f" % (IMU_data[43], IMU_data[44], IMU_data[45]))
             data_record_list.append(data_record)

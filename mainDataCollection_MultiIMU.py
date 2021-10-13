@@ -20,7 +20,7 @@ if __name__ == '__main__':
     #########################################################################################
     # vicon_stream, subject_name, marker_count = vicon_init("192.168.10.203")
     IP_ADDRESS = "192.168.1.10"
-    vicon_enable = False
+    vicon_enable = True
     #########################################################################################
 
 
@@ -65,22 +65,37 @@ if __name__ == '__main__':
             # Range of measurement: x, y, z as follows; x+ facing left, y+ facing up, z+ facing forward
             # https://lp-research.atlassian.net/wiki/spaces/LKB/pages/1100611599/LPMS+User+Manual
             IMU_data = child_conn_IMU.recv()
+            vicon_data_flat = []
 
             if vicon_enable:
                 vicon_data = child_conn_vicon.recv()
-                print("VICON data:", vicon_data[0])
+
+                if vicon_data[0] is not None:
+                    # print("VICON data:", vicon_data[0])
+                    vicon_data_list = [x.tolist() for x in vicon_data]
+                    vicon_data_flat = [item for x in vicon_data_list for item in x]
+                    # print("VICON data:", vicon_data_flat[0:3])
 
             current_period = (time.time() - time_start) * 1000
 
             # Data format of output is plain txt
             data_record = [current_frame, current_period]
+            if not IMU_data:
+                IMU_data = [None] * 70
+            if not vicon_data_flat:
+                vicon_data_flat = [None] * 9 # change this number to number of markers * 3
+
             if vicon_enable:
-                data_record.extend(vicon_data)
+                data_record.extend(vicon_data_flat)
                 data_record.extend(IMU_data)
+                if vicon_data_flat[0] and IMU_data[0]:
+                    print("%10.4f, %10.4f, %10.4f, %10.4f, %10.4f" % (current_period, IMU_data[43], IMU_data[44], IMU_data[45], vicon_data_flat[0]))
             else:
                 data_record.extend(IMU_data)
                 if IMU_data:
-                    print("%10.4f,      %10.4f,      %10.4f" % (IMU_data[43], IMU_data[44], IMU_data[45]))
+                    # IMU_data size:70
+                    # 0-13; 14-27; 28-41; 42-55; 56-69
+                    print("%10.4f,      %10.4f,      %10.4f,      %10.4f" % (current_period ,IMU_data[43], IMU_data[44], IMU_data[45]))
             data_record_list.append(data_record)
 
             file1.writelines(','.join(str(j) for j in data_record) + '\n')
